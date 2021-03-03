@@ -135,7 +135,7 @@ int net_input_handler(uint16_t type, const uint8_t *data, size_t len, struct net
             num = proto->queue.num;
             pthread_mutex_unlock(&proto->mutex);
 
-            debugf("queue pushed (num:%u), dev=%s, type=-x%04x, len=%zd", num, dev->name, type, len);
+            debugf("queue pushed (num:%u), dev=%s, type=0x%04x, len=%zd", num, dev->name, type, len);
             debugdump(data, len);
             return 0;
         }
@@ -206,6 +206,7 @@ net_thread(void *arg)
                 debugf("queue popped (num:%u), dev=%s, type=0x%04x, len=%zd", 
                     num, entry->dev->name, proto->type, entry->len);
                 debugdump((uint8_t *)(entry + 1), entry->len, entry->dev);
+                proto->handler((uint8_t *)(entry + 1), entry->len, entry->dev);
                 free(entry);
                 count++;
             }
