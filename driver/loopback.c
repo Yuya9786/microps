@@ -4,23 +4,24 @@
 #include "util.h"
 #include "net.h"
 
-#define NULL_MTU UINT16_MAX /* maximum size of IP datagram */
+#define LOOPBACK_MTU UINT16_MAX /* maximum size of IP datagram */
 
 static int
-null_transmit(struct net_device *dev, uint16_t type, const uint8_t *data, size_t len, const void *dst)
+loopback_transmit(struct net_device *dev, uint16_t type, const uint8_t *data, size_t len, const void *dst)
 {
     debugf("dev=%s, type=0x%04x, len=%zu", dev->name, type, len);
     debugdump(data, len);
-    /* drop data */
-    return 0;
+    
+    /* loopback data */
+    return net_input_handler(type, data, len, dev);
 }
 
-static struct net_device_ops null_ops = {
-    .transmit = null_transmit,
+static struct net_device_ops loopback_ops = {
+    .transmit = loopback_transmit,
 };
 
 struct net_device *
-null_init(void)
+loopback_init(void)
 {
 	struct net_device *dev;
 
@@ -29,11 +30,12 @@ null_init(void)
 		errorf("net_device_alloc() failure");
 		return NULL;
 	}
-	dev->type = NET_DEVICE_TYPE_NULL;
-	dev->mtu = NULL_MTU;
+	dev->type = NET_DEVICE_TYPE_LOOPBACK;
+	dev->mtu = LOOPBACK_MTU;
 	dev->hlen = 0;
 	dev->alen = 0;
-	dev->ops = &null_ops;
+	dev->ops = &loopback_ops;
+	dev->flags = NET_DEVICE_FLAG_LOOPBACK;
 	if (net_device_register(dev) == -1) {
 		errorf("net_device_register() failure");
 		return NULL;
