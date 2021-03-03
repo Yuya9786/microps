@@ -20,6 +20,7 @@ net_device_alloc(void)
 		errorf("calloc() failure");
 		return NULL;
 	}
+	return dev;
 }
 
 int net_device_register(struct net_device *dev)
@@ -70,14 +71,14 @@ net_device_close(struct net_device *dev)
 	return 0;
 }
 
-int net_device_output(struct *dev, uint16_t type, const uint8_t *data, 
+int net_device_output(struct net_device *dev, uint16_t type, const uint8_t *data, 
 		size_t len, const void *dst)
 {
 	if (!NET_DEVICE_IS_UP(dev)) {
 		errorf("not opened, dev=%s", dev->name);
 		return -1;
 	}
-	if (len > dav->mtu) {
+	if (len > dev->mtu) {
 		errorf("too long, dev=%s, mtu=%u len=%zu", dev->name, dev->mtu, len);
 		return -1;
 	}
@@ -117,11 +118,12 @@ void net_shutdown(void)
 	for (dev = devices; dev; dev = dev->next) {
 		net_device_close(dev);
 	}
-	debug("shutdown");
+	debugf("shutdown");
 }
 
 int net_init(void)
 {
 	return 0;
 }
+
 

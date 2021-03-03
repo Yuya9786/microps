@@ -23,7 +23,7 @@
 #define NET_DEVICE_IS_UP(x) ((x)->flags & NET_DEVICE_FLAG_UP)
 #define NET_DEVICE_STATE(x) (NET_DEVICE_IS_UP(x) ? "up" : "down")
 
-struct net_cevice {
+struct net_device {
 	struct net_device *next; // 次のデバイスへのポインタ
 	unsigned int index;
 	char name[IFNAMSIZ];
@@ -44,7 +44,26 @@ struct net_cevice {
 struct net_device_ops {
 	int (*open)(struct net_device *dev);
 	int (*close)(struct net_device *dev);
-	int (transmit)(struct net_device *dev, uint16_t type,
+	int (*transmit)(struct net_device *dev, uint16_t type,
 		const uint8_t *data, size_t len, const void *dst);
 	int (*poll)(struct net_device *dev);
 };
+
+extern struct net_device *
+net_device_alloc(void);
+extern int
+net_device_register(struct net_device *dev);
+extern int
+net_device_output(struct net_device *dev, uint16_t type, const uint8_t *data, size_t len, const void *dst);
+
+extern int
+net_input_handler(uint16_t type, const uint8_t *data, size_t len, struct net_device *dev);
+
+extern int
+net_run(void);
+extern void
+net_shutdown(void);
+extern int
+net_init(void);
+
+#endif
