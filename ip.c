@@ -287,7 +287,7 @@ ssize_t
 ip_output(uint8_t protocol, const uint8_t *data, size_t len, ip_addr_t src, ip_addr_t dst)
 {
     struct ip_iface *iface;
-    // char addr[IP_ADDR_STR_LEN];
+    char addr[IP_ADDR_STR_LEN];
     uint16_t id;
 
     if (src == IP_ADDR_ANY) {
@@ -296,11 +296,11 @@ ip_output(uint8_t protocol, const uint8_t *data, size_t len, ip_addr_t src, ip_a
     } else {
         iface = ip_iface_select(src);
         if (!iface) {
-            errorf("ip_iface does not exist");
+            errorf("ip_iface not found, addr=%s", ip_addr_ntop(src, addr, sizeof(addr)));
             return -1;
         }
         if (dst != IP_ADDR_BROADCAST && (dst & iface->netmask) != (iface->unicast & iface->netmask)) {
-            errorf("cannot approach to dst");
+            errorf("not reached, addr=%s", ip_addr_ntop(src, addr, sizeof(addr)));
             return -1;
         }
     }
