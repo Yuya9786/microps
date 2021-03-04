@@ -24,20 +24,6 @@ struct net_protocol_queue_entry {
     size_t len;
 };
 
-struct net_protocol {
-    struct net_protocol *next;
-    uint16_t type;
-    pthread_mutex_t mutex; /* mutex for input queue */
-    struct queue_head queue; /* input queue */
-    void (*handler)(const uint8_t *data, size_t len, struct net_device *dev);
-};
-
-/* NOTE: the data follows immediately after the structure */
-struct net_protocol_queue_entry {
-    struct net_device *dev;
-    size_t len;
-};
-
 /* NOTE: if you want to add/delete the entries after net_run(), you need to protect these lists with a mutex. */
 static struct net_device *devices;
 static struct net_protocol *protocols;
@@ -256,78 +242,7 @@ net_thread(void *arg)
     return NULL;
 }
 
-int
-net_protocol_register(uint16_t type, void (*handler)(const uint8_t *data, size_t len, struct net_device *dev))
-{
-    struct net_protocol *proto;
 
-    for (proto = protocols; proto; proto = proto->next) {
-        if (type == proto->type) {
-            errorf("already registered, type=0x%04x", type);
-            return -1;
-        }
-    }
-    proto = calloc(1, sizeof(*proto));
-    if (!proto) {
-        errorf("calloc() failure");
-        return -1;
-    }
-    proto->type = type;
-    pthread_mutex_init(&proto->mutex, NULL);
-    proto->handler = handler;
-    proto->next = protocols;
-    protocols = proto;
-    infof("registered, type=0x%04x", type);
-    return 0;
-}
-
-#define NET_THREAD_SLEEP_TIME 1000 /* micro seconds */
-
-static pthread_t thread;
-static volatile sig_atomic_t terminate;
-
-static void *
-net_thread(void *arg) 
-{
-    unsigned int count, num;
-    struct net_device *dev;
-    struct net_protocol *proto;
-    struct net_protocol_queue_entry *entry;
-
-    while (!terminate) {
-        count = 0;
-        for (dev = devices; dev; dev = dev->next) {
-            // デバイスのポーリング
-            if (NET_DEVICE_IS_UP(dev)) {
-                if (dev->ops->poll) {
-                    if (dev->ops->poll(dev) != -1) {
-                        count++;
-                    }
-                }
-            }
-        }
-        for (proto = protocols; proto; proto = proto->next) {
-            // プロトコルの受信キューのデータ処理
-            pthread_mutex_lock(&proto->mutex);
-            entry = (struct net_protocol_queue_entry *)queue_pop(&proto->queue);
-            num = proto->queue.num;
-            pthread_mutex_unlock(&proto->mutex);
-            if (entry) {
-                debugf("queue popped (num:%u), dev=%s, type=0x%04x, len=%zd", 
-                    num, entry->dev->name, proto->type, entry->len);
-                debugdump((uint8_t *)(entry + 1), entry->len, entry->dev);
-                proto->handler((uint8_t *)(entry + 1), entry->len, entry->dev);
-                free(entry);
-                count++;
-            }
-        }
-        if (!count) {
-            // ビジーループを回避
-            usleep(NET_THREAD_SLEEP_TIME);
-        }
-    }
-    return NULL;
-}
 
 int net_run(void)
 {

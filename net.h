@@ -67,13 +67,6 @@ struct net_iface {
 	/* depends on implementation of protocols. */
 };
 
-struct net_iface {
-    struct net_iface *next;
-    struct net_device *dev;
-    int family;
-    /* depends on implementation of protocols. */
-};
-
 extern struct net_device *
 net_device_alloc(void);
 extern int

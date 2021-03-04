@@ -2,20 +2,6 @@ APPS =
 
 TESTS = test/step0.exe \
         test/step1.exe \
-<<<<<<< HEAD
-		test/step2.exe \
-		test/step3.exe \
-		test/step4.exe \
-		test/step5.exe \
-		test/step6.exe \
-
-DRIVERS = driver/null.o \
-	  	  driver/loopback.o \
-
-OBJS = util.o \
-       net.o \
-	   ip.o \
-=======
         test/step2.exe \
         test/step3.exe \
         test/step4.exe \
@@ -33,7 +19,6 @@ OBJS = util.o \
        net.o \
        ip.o \
 	   icmp.o \
->>>>>>> work2
 
 CFLAGS := $(CFLAGS) -g -W -Wall -Wno-unused-parameter -I .
 
