@@ -29,27 +29,27 @@
 #define NET_IFACE(x) ((struct net_iface *)(x))
 
 /* NOTE: use same value as the Ethernet types */
-#define NET_PROTOCOL_TYPE_IP	0x0800
-#define NET_PROTOCOL_TYPE_ARP 	0x0806
-#define NET_PROTOCOL_TYPE_IPV6 	0x86dd
+#define NET_PROTOCOL_TYPE_IP   0x0800
+#define NET_PROTOCOL_TYPE_ARP  0x0806
+#define NTT_PROTOCOL_TYPE_IPV6 0x86dd
 
 struct net_device {
-	struct net_device *next; // 次のデバイスへのポインタ
-	struct net_iface *ifaces;  /* NOTE: if you want to add/delete the entries after net_run(), you need to protect ifaces with a mutex. */
-	unsigned int index;
-	char name[IFNAMSIZ];
-	uint16_t type;		// デバイスの種別
-	uint16_t mtu;
-	uint16_t flags;
-	uint16_t hlen;		// header length
-	uint16_t alen;		// address length
-	uint8_t addr[NET_DEVICE_ADDR_LEN];
-	union {
-		uint8_t peer[NET_DEVICE_ADDR_LEN];
-		uint8_t broadcast[NET_DEVICE_ADDR_LEN];
-	};
-	struct net_device_ops *ops;
-	void *prev;		// デバイスドライバが使うプライベートなデータへのポインタ
+    struct net_device *next;
+    struct net_iface *ifaces; /* NOTE: if you want to add/delete the entries after net_run(), you need to protect ifaces with a mutex. */
+    unsigned int index;
+    char name[IFNAMSIZ];
+    uint16_t type;
+    uint16_t mtu;
+    uint16_t flags;
+    uint16_t hlen; /* header length */
+    uint16_t alen; /* address length */
+    uint8_t addr[NET_DEVICE_ADDR_LEN];
+    union {
+        uint8_t peer[NET_DEVICE_ADDR_LEN];
+        uint8_t broadcast[NET_DEVICE_ADDR_LEN];
+    };
+    struct net_device_ops *ops;
+    void *priv;
 };
 
 struct net_device_ops {
@@ -65,6 +65,13 @@ struct net_iface {
 	struct net_device *dev;
 	int family;
 	/* depends on implementation of protocols. */
+};
+
+struct net_iface {
+    struct net_iface *next;
+    struct net_device *dev;
+    int family;
+    /* depends on implementation of protocols. */
 };
 
 extern struct net_device *
