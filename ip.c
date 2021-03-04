@@ -221,7 +221,7 @@ ip_output_device(struct ip_iface *iface, const uint8_t *data, size_t len, ip_add
         }
     }
 
-    return net_device_output(NET_IFACE(iface)->dev, NET_IFACE(iface)->dev->type, data, len, hwaddr);
+    return net_device_output(NET_IFACE(iface)->dev, NET_PROTOCOL_TYPE_IP, data, len, hwaddr);
 }
 
 static ssize_t
@@ -238,7 +238,6 @@ ip_output_core(struct ip_iface *iface, uint8_t protocol, const uint8_t *data, si
     hdr->vhl = (IP_VERSION_IPV4 << 4) | (uint8_t)(hlen >> 2);
     hdr->tos = 0;
     hdr->total = hton16(total);
-    infof("totala(%d)= hlen(%d) + len(%d)", hdr->total, hlen, len);
     hdr->id = hton16(id);
     hdr->offset = hton16(offset);
     hdr->ttl = 255;
