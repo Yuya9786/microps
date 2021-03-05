@@ -71,11 +71,7 @@ main(int argc, char *argv[])
     ip_addr_pton(LOOPBACK_IP_ADDR, &src);
     dst = src;
     while (!terminate) {
-<<<<<<< HEAD
         if (ip_output(0x01, test_data + offset, sizeof(test_data) - offset, src, dst)== -1) {
-=======
-        if (ip_output(0x01, test_data + offset, sizeof(test_data) - offset, src, dst) == -1) {
->>>>>>> work3
             errorf("ip_output() failure");
             break;
         }

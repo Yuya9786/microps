@@ -141,6 +141,7 @@ arp_cache_update(ip_addr_t pa, const uint8_t *ha)
         return NULL;
     }
     memcpy(cache->ha, ha, ETHER_ADDR_LEN);
+    gettimeofday(&cache->timestamp, NULL);
     cache->state = ARP_CACHE_STATE_RESOLVED;
     debugf("UPDATE: pa=%s, ha=%s", ip_addr_ntop(pa, addr1, sizeof(addr1)), ether_addr_ntop(ha, addr2, sizeof(addr2)));
     return cache;
@@ -160,6 +161,7 @@ arp_cache_insert(ip_addr_t pa, const uint8_t *ha)
     }
     cache->pa = pa;
     memcpy(cache->ha, ha, ETHER_ADDR_LEN);
+    gettimeofday(&cache->timestamp, NULL);
     cache->state = ARP_CACHE_STATE_RESOLVED;
     debugf("INSERT: pa=%s, ha=%s", ip_addr_ntop(cache->pa, addr1, sizeof(addr1)), ether_addr_ntop(cache->ha, addr2, sizeof(addr2)));
     return cache;
