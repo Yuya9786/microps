@@ -9,6 +9,8 @@
 #include "util.h"
 #include "net.h"
 #include "ip.h"
+#include "icmp.h"
+#include "arp.h"
 
 struct net_protocol {
     struct net_protocol *next;
@@ -110,6 +112,7 @@ struct net_iface *
 net_device_get_iface(struct net_device *dev, int family)
 {
     struct net_iface *entry;
+
     for (entry = dev->ifaces; entry; entry = entry->next) {
         if (entry->family == family) {
             break;
@@ -242,8 +245,6 @@ net_thread(void *arg)
     return NULL;
 }
 
-
-
 int net_run(void)
 {
     struct net_device *dev;
@@ -282,8 +283,6 @@ void net_shutdown(void)
     debugf("shutdown");
 }
 
-#include "ip.h"
-#include "icmp.h"
 
 int
 net_init(void)
@@ -292,9 +291,12 @@ net_init(void)
         errorf("ip_init() failure");
         return -1;
     }
-
     if (icmp_init() == -1) {
         errorf("icmp_init() failure");
+        return -1;
+    }
+    if (arp_init() == -1) {
+        errorf("arp_init() failure");
         return -1;
     }
     return 0;

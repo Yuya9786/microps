@@ -69,7 +69,7 @@ ether_tap_open(struct net_device *dev)
         close(tap->fd);
         return -1;
     }
-    if (memcpy(dev->addr, ETHER_ADDR_ANY, ETHER_ADDR_LEN) == 0) {
+    if (memcmp(dev->addr, ETHER_ADDR_ANY, ETHER_ADDR_LEN) == 0) {
         if (ether_tap_addr(dev) == -1) {
             errorf("ether_tap_addr() failure, dev=%s", dev->name);
             close(tap->fd);
