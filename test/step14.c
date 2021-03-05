@@ -51,15 +51,6 @@ setup(void)
         errorf("ether_tap_init() failure");
         return -1;
     }
-<<<<<<< HEAD
-    iface = ip_iface_alloc(ETHER_TAP_IP_ADDR, ETHER_TAP_NETMASK); 
-    if (!iface) {
-        errorf("ip_iface_alloc() failure");
-        return -1; 
-    }
-    if (ip_iface_register(dev, iface) == -1) { 
-        errorf("ip_iface_register() failure"); 
-=======
     iface = ip_iface_alloc(ETHER_TAP_IP_ADDR, ETHER_TAP_NETMASK);
     if (!iface) {
         errorf("ip_iface_alloc() failure");
@@ -67,7 +58,6 @@ setup(void)
     }
     if (ip_iface_register(dev, iface) == -1) {
         errorf("ip_iface_register() failure");
->>>>>>> work3
         return -1;
     }
     if (net_run() == -1) {
@@ -86,12 +76,23 @@ cleanup(void)
 int
 main(int argc, char *argv[])
 {
+    ip_addr_t src, dst;
+    uint16_t id, seq = 0;
+    size_t offset = IP_HDR_SIZE_MIN + ICMP_HDR_SIZE;
+
     signal(SIGINT, on_signal);
     if (setup() == -1) {
         errorf("setup() failure");
         return -1;
     }
+    ip_addr_pton("192.0.2.2", &src);
+    ip_addr_pton("192.0.2.1", &dst);
+    id = getpid() % UINT16_MAX;
     while (!terminate) {
+        if (icmp_output(ICMP_TYPE_ECHO, 0, hton32(id << 16 | ++seq), test_data + offset, sizeof(test_data) - offset, src, dst) == -1) {
+            errorf("icmp_output() failure");
+            break;
+        }
         sleep(1);
     }
     cleanup();

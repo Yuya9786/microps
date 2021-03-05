@@ -51,15 +51,6 @@ setup(void)
         errorf("ether_tap_init() failure");
         return -1;
     }
-<<<<<<< HEAD
-    iface = ip_iface_alloc(ETHER_TAP_IP_ADDR, ETHER_TAP_NETMASK); 
-    if (!iface) {
-        errorf("ip_iface_alloc() failure");
-        return -1; 
-    }
-    if (ip_iface_register(dev, iface) == -1) { 
-        errorf("ip_iface_register() failure"); 
-=======
     iface = ip_iface_alloc(ETHER_TAP_IP_ADDR, ETHER_TAP_NETMASK);
     if (!iface) {
         errorf("ip_iface_alloc() failure");
@@ -67,7 +58,6 @@ setup(void)
     }
     if (ip_iface_register(dev, iface) == -1) {
         errorf("ip_iface_register() failure");
->>>>>>> work3
         return -1;
     }
     if (net_run() == -1) {
