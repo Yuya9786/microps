@@ -6,6 +6,7 @@
 
 #include "util.h"
 #include "net.h"
+#include "arp.h"
 #include "ip.h"
 #include "arp.h"
 
@@ -381,7 +382,7 @@ ip_output(uint8_t protocol, const uint8_t *data, size_t len, ip_addr_t src, ip_a
     uint16_t id;
 
     if (src == IP_ADDR_ANY && dst == IP_ADDR_BROADCAST) {
-        errorf("source address is required for broadcast address");
+        errorf("source address is required for broadcast addresses");
         return -1;
     }
     route = ip_route_lookup(dst);
