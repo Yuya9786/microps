@@ -422,7 +422,7 @@ tcp_segment_arrives(struct tcp_segment_info *seg, uint8_t flags, uint8_t *data, 
                 /* not acceptable */
             } else {
                 if ((pcb->rcv.nxt <= seg->seq && seg->seq < pcb->rcv.nxt + pcb->rcv.wnd) ||
-                    (pcb->rcv.nxt <= seg->seq + seg->len - 1 && seg->seq + seg->len - 1 < pcb->rcv.wnd)) {
+                    (pcb->rcv.nxt <= seg->seq + seg->len - 1 && seg->seq + seg->len - 1 < pcb->rcv.nxt + pcb->rcv.wnd)) {
                     acceptable = 1;
                 }
             }
@@ -753,12 +753,12 @@ RETRY:
                 pthread_mutex_unlock(&mutex);
                 return -1;
             }
-            pcb->snd.nxt = slen;
+            pcb->snd.nxt += slen;
             sent += slen;
         }
         break;
     default:
-        errorf("unkown state '%u'", pcb->state);
+        errorf("unknown state '%u'", pcb->state);
         net_interrupt_subscribe();
         pthread_mutex_unlock(&mutex);
         return -1;

@@ -101,7 +101,7 @@ main(int argc, char *argv[])
     }
     while (!terminate) {
         ret = tcp_receive(id, buf, sizeof(buf));
-        if (ret < 0) {
+        if (ret <= 0) {
             break;
         }
         hexdump(stderr, buf, ret);
