@@ -10,34 +10,6 @@
 #include "ip.h"
 #include "arp.h"
 
-struct ip_hdr {
-    uint8_t vhl;
-    uint8_t tos;
-    uint16_t total;
-    uint16_t id;
-    uint16_t offset;
-    uint8_t ttl;
-    uint8_t protocol;
-    uint16_t sum;
-    ip_addr_t src;
-    ip_addr_t dst;
-    uint8_t options[0];
-};
-
-struct ip_protocol {
-    struct ip_protocol *next;
-    uint8_t type;
-    void (*handler)(const uint8_t *data, size_t len, ip_addr_t src, ip_addr_t dst, struct ip_iface *iface);
-};
-
-struct ip_route {
-    struct ip_route *next;
-    ip_addr_t network;
-    ip_addr_t netmask;
-    ip_addr_t nexthop;
-    struct ip_iface *iface;
-};
-
 const ip_addr_t IP_ADDR_ANY       = 0x00000000; /* 0.0.0.0 */
 const ip_addr_t IP_ADDR_BROADCAST = 0xffffffff; /* 255.255.255.255 */
 
@@ -133,11 +105,11 @@ ip_route_add(ip_addr_t network, ip_addr_t netmask, ip_addr_t nexthop, struct ip_
     route->iface = iface;
     route->next = routes;
     routes = route;
-    infof("network=%s, netmask=%s, nexthop=%s, iface=%s dev=%s", 
-        ip_addr_ntop(route->network, addr1, sizeof(addr1)), 
-        ip_addr_ntop(route->netmask, addr2, sizeof(addr2)), 
-        ip_addr_ntop(route->nexthop, addr3, sizeof(addr3)), 
-        ip_addr_ntop(route->iface->unicast, addr4, sizeof(addr4)), 
+    infof("network=%s, netmask=%s, nexthop=%s, iface=%s dev=%s",
+        ip_addr_ntop(route->network, addr1, sizeof(addr1)),
+        ip_addr_ntop(route->netmask, addr2, sizeof(addr2)),
+        ip_addr_ntop(route->nexthop, addr3, sizeof(addr3)),
+        ip_addr_ntop(route->iface->unicast, addr4, sizeof(addr4)),
         NET_IFACE(iface)->dev->name
     );
     return route;

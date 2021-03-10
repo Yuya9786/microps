@@ -51,6 +51,20 @@ ether_addr_ntop(const uint8_t *n, char *p, size_t size)
     return p;
 }
 
+static const char *
+ether_type_ntoa(uint16_t type)
+{
+    switch (ntoh16(type)) {
+    case ETHER_TYPE_IP:
+        return "IP";
+    case ETHER_TYPE_ARP:
+        return "ARP";
+    case ETHER_TYPE_IPV6:
+        return "IPv6";
+    }
+    return "UNKNOWN";
+}
+
 static void
 ether_dump(const uint8_t *frame, size_t flen)
 {
@@ -61,7 +75,7 @@ ether_dump(const uint8_t *frame, size_t flen)
     flockfile(stderr);
     fprintf(stderr, "        src: %s\n", ether_addr_ntop(hdr->src, addr, sizeof(addr)));
     fprintf(stderr, "        dst: %s\n", ether_addr_ntop(hdr->dst, addr, sizeof(addr)));
-    fprintf(stderr, "       type: 0x%04x\n", ntoh16(hdr->type));
+    fprintf(stderr, "       type: 0x%04x (%s)\n", ntoh16(hdr->type), ether_type_ntoa(hdr->type));
 #ifdef HEXDUMP
     hexdump(stderr, frame, flen);
 #endif
@@ -84,7 +98,7 @@ ether_transmit_helper(struct net_device *dev, uint16_t type, const uint8_t *data
         pad = ETHER_PAYLOAD_SIZE_MIN - len;
     }
     flen = sizeof(*hdr) + len + pad;
-    debugf("dev=%s, type=0x%04x, len=%zu", dev->name, type, flen);
+    debugf("dev=%s, type=%s(0x%04x), len=%zu", dev->name, ether_type_ntoa(hdr->type), type, flen);
     ether_dump(frame, flen);
     return callback(dev, frame, flen) == (ssize_t)flen ? 0 : -1;
 }
@@ -110,13 +124,13 @@ ether_poll_helper(struct net_device *dev, ssize_t (*callback)(struct net_device 
         }
     }
     type = ntoh16(hdr->type);
-    debugf("dev=%s, type=0x%04x, len=%zu", dev->name, type, flen);
+    debugf("dev=%s, type=%s(0x%04x), len=%zu", dev->name, ether_type_ntoa(type), type, flen);
     ether_dump(frame, flen);
     return net_input_handler(type, (uint8_t *)(hdr + 1), flen - sizeof(*hdr), dev);
 }
 
 void
-ether_setup_helper(struct net_device *dev) 
+ether_setup_helper(struct net_device *dev)
 {
     dev->type = NET_DEVICE_TYPE_ETHERNET;
     dev->mtu = ETHER_PAYLOAD_SIZE_MAX;

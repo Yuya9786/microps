@@ -33,6 +33,34 @@ struct ip_iface {
     ip_addr_t broadcast;
 };
 
+struct ip_hdr {
+    uint8_t vhl;
+    uint8_t tos;
+    uint16_t total;
+    uint16_t id;
+    uint16_t offset;
+    uint8_t ttl;
+    uint8_t protocol;
+    uint16_t sum;
+    ip_addr_t src;
+    ip_addr_t dst;
+    uint8_t options[0];
+};
+
+struct ip_protocol {
+    struct ip_protocol *next;
+    uint8_t type;
+    void (*handler)(const uint8_t *data, size_t len, ip_addr_t src, ip_addr_t dst, struct ip_iface *iface);
+};
+
+struct ip_route {
+    struct ip_route *next;
+    ip_addr_t network;
+    ip_addr_t netmask;
+    ip_addr_t nexthop;
+    struct ip_iface *iface;
+};
+
 extern const ip_addr_t IP_ADDR_ANY;
 extern const ip_addr_t IP_ADDR_BROADCAST;
 
